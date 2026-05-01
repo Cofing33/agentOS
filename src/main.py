@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import logging
+
 import structlog
 import uvicorn
 from fastapi import FastAPI
@@ -8,6 +10,8 @@ from fastapi.middleware.cors import CORSMiddleware
 from src.api.routes import router
 from src.core.config import settings
 
+_LOG_LEVELS = {"DEBUG": 10, "INFO": 20, "WARNING": 30, "ERROR": 40, "CRITICAL": 50}
+
 structlog.configure(
     processors=[
         structlog.processors.TimeStamper(fmt="iso"),
@@ -15,7 +19,7 @@ structlog.configure(
         structlog.dev.ConsoleRenderer(),
     ],
     wrapper_class=structlog.make_filtering_bound_logger(
-        structlog.get_level_from_name(settings.log_level)
+        _LOG_LEVELS.get(settings.log_level.upper(), logging.INFO)
     ),
 )
 
